@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auction-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auction-mysql
+  template:
+    metadata:
+      labels:
+        app: auction-mysql
+    spec:
+      containers:
+        - name: auction-mysql
+          image: mysql:8
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "auction"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: auction-mysql-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: auction-mysql-storage
+          persistentVolumeClaim:
+            claimName: auction-mysql-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: auction-mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auction-mysql
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: auction-mysql

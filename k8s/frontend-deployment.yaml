@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auction-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auction-frontend
+  template:
+    metadata:
+      labels:
+        app: auction-frontend
+    spec:
+      containers:
+        - name: auction-frontend
+          image: coresume/auction-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auction-frontend
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5173
+      targetPort: 80
+  selector:
+    app: auction-frontend
